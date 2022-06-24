@@ -85,7 +85,7 @@ export class PollsConstruct extends Construct {
       [PollingTable.Votes]: new Table(this, `${baseId}Votes`, {
         ...tableOptions,
         // Hint: you might need more than just snapshots of the new values in order to properly count vote changes
-        stream: StreamViewType.NEW_IMAGE,
+        stream: StreamViewType.NEW_AND_OLD_IMAGES,
         partitionKey: {
           name: VoteKey.IdentityId,
           type: AttributeType.STRING

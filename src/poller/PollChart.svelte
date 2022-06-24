@@ -25,13 +25,9 @@
 
     function onUpdates(updates: PollUpdates) {
         if (updates && poll.id === updates.pollId) {
-            const choices = Object.keys(updates.counts);
-            const items = choices.map((choice) => ({
-                choice: parseInt(choice),
-                count: updates.counts[choice] as number,
-                pollId: poll.id,
-            }));
-            countStack.add(items);
+            $countsDao
+                .findForPollId(poll.id)
+                .then((counts) => countStack.add(counts));
         }
     }
 

@@ -15,10 +15,12 @@ import type { VoteDao } from "./VoteDao";
   export let pollId: string;
   let selected: string;
   let submittedVote: Promise<Vote | undefined>;
+  let selectedChoice = null;
   
   async function loadVote(dao: VoteDao, id: string): Promise<Vote | undefined> {
     const vote = await dao.getForPoll(id)
     selected = vote ? `${vote.choice}` : selected
+    selectedChoice = vote ? vote.choice : null;
     return vote;
   }
 </script>
@@ -37,19 +39,23 @@ import type { VoteDao } from "./VoteDao";
         {#each poll.answers as answer, index}
           <RadioTile
             value={index + ""}
-            disabled={!!previousVote || !!submittedVote}>{answer}</RadioTile
+            disabled={selectedChoice === index}>{answer}</RadioTile
           >
         {/each}
       </TileGroup>
     </Tile>
     <Tile>
       <Button
-        on:click={() =>
-          (submittedVote = $votesDao.vote({
+        on:click={() => {
+          submittedVote = $votesDao.vote({
             choice: parseInt(selected),
             pollId: poll.id,
-          }))}
-        disabled={!selected || !!previousVote || !!submittedVote}
+          })
+          submittedVote.then(vote => {
+            selectedChoice = vote.choice
+          })
+        }}
+        disabled={selectedChoice === parseInt(selected)}
       >
         Vote
       </Button>

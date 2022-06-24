@@ -10,8 +10,18 @@ const counter = new VoteCounter(ddb, resolveTableName(PollingTable.Counts) as st
 
 export const handler: DynamoDBStreamHandler = async event => {
   const votes = event.Records
-    .filter(r => r.eventName === 'INSERT')
-    .map(r => r.dynamodb?.NewImage)
-    .map(v => DynamoDB.Converter.unmarshall(v as AttributeMap) as Vote)
+    .filter(r => r.eventName === 'INSERT' || r.eventName === 'MODIFY')
+    .map(r => ({
+      next: r.dynamodb?.NewImage,
+      prev: r.dynamodb?.OldImage,
+    }))
+    .map(v => {
+      const next = DynamoDB.Converter.unmarshall(v.next as AttributeMap) as Vote
+      const prev = DynamoDB.Converter.unmarshall(v.prev as AttributeMap) as Vote
+      return {
+        ...next,
+        prevChoice: prev.choice
+      }
+    })
   await counter.count(votes)
 }
