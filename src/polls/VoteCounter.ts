@@ -13,23 +13,23 @@ export class VoteCounter {
   groupByPollAndChoice (allVotes: Vote[]): Record<string, Record<number, number>> {
     const choiceKey: keyof Vote = 'choice'
     const prevChoiceKey: keyof Vote = 'prevChoice'
-    let newValues = chain(allVotes)
+    const newValues = chain(allVotes)
       .groupBy(VoteKey.PollId)
-      .mapValues(votes => chain(votes).countBy(choiceKey).value()).value();
+      .mapValues(votes => chain(votes).countBy(choiceKey).value()).value()
 
     const prevValues = chain(allVotes)
       .groupBy(VoteKey.PollId)
-      .mapValues(votes => chain(votes).countBy(prevChoiceKey).value()).value();
+      .mapValues(votes => chain(votes).countBy(prevChoiceKey).value()).value()
 
-    for (const pollId of Object.keys(prevValues)) { 
-      for(const choice of Object.keys(prevValues[pollId])) {
-        if(choice !== "undefined") {
-          newValues[pollId][choice] = -1 * prevValues[pollId][choice]; 
+    for (const pollId of Object.keys(prevValues)) {
+      for (const choice of Object.keys(prevValues[pollId])) {
+        if (choice !== 'undefined') {
+          newValues[pollId][choice] = -1 * prevValues[pollId][choice]
         }
       }
     }
 
-    return newValues;
+    return newValues
   }
 
   toCountUpdates (voteCounts: Record<string, Record<number, number>>): CountItem[] {

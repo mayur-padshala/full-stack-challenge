@@ -13,7 +13,7 @@ export const handler: DynamoDBStreamHandler = async event => {
     .filter(r => r.eventName === 'INSERT' || r.eventName === 'MODIFY')
     .map(r => ({
       next: r.dynamodb?.NewImage,
-      prev: r.dynamodb?.OldImage,
+      prev: r.dynamodb?.OldImage
     }))
     .map(v => {
       const next = DynamoDB.Converter.unmarshall(v.next as AttributeMap) as Vote
